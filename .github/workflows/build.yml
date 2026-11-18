@@ -18,7 +18,39 @@ jobs:
       - name: Decode google-services.json
         env:
           GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
-        run: echo $GOOGLE_SERVICES_JSON_B64 | base64 -d > app/google-services.json
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_B64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > app/google-services.json
+          else
+            # Forks don't get this secret; write a placeholder so the build and unit tests can run.
+            echo "GOOGLE_SERVICES_JSON_B64 not set; using placeholder google-services.json"
+            cat > app/google-services.json <<'EOF'
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "vocable-placeholder",
+              "storage_bucket": "vocable-placeholder.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+                  "android_client_info": { "package_name": "com.willowtree.vocable" }
+                },
+                "api_key": [{ "current_key": "placeholder" }]
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000001",
+                  "android_client_info": { "package_name": "com.willowtree.vocable.debug" }
+                },
+                "api_key": [{ "current_key": "placeholder" }]
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+          fi
 
       - name: Set Up JDK 17
         uses: actions/setup-java@v4
