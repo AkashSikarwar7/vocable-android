@@ -21,7 +21,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,6 +39,8 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import com.willowtree.vocable.R
 import com.willowtree.vocable.ui.base.MviScreen
 import com.willowtree.vocable.ui.components.GazeButton
+import com.willowtree.vocable.ui.theme.CategoryColor
 import com.willowtree.vocable.ui.theme.ColorPrimary
 import com.willowtree.vocable.ui.theme.SpeakerButtonColor
 import com.willowtree.vocable.ui.theme.VocableTheme
@@ -116,14 +123,20 @@ fun KeyboardContent(
     onAddPhrase: () -> Unit,
 ) {
     val keys = stringArrayResource(id = R.array.keyboard_keys)
+    // Empty for every locale except ones whose alphabet needs a second page (Hindi).
+    val secondPageKeys = stringArrayResource(id = R.array.keyboard_keys_page2)
     val numColumns = integerResource(id = R.integer.keyboard_columns)
     val inputTextSize = dimensionResource(id = R.dimen.keyboard_input_text_size).value.sp
     val keyTextSize = dimensionResource(id = R.dimen.keyboard_text_size).value.sp
+    val switchPageDescription = stringResource(R.string.keyboard_switch_page)
 
     val isLandscapeOrTablet = numColumns > 5
 
-    val chunkedKeys = remember(keys, numColumns) {
-        keys.toList().chunked(numColumns)
+    var keyPage by rememberSaveable { mutableIntStateOf(0) }
+    val pages = remember(keys, secondPageKeys) { listOf(keys.toList(), secondPageKeys.toList()) }
+    val pageCount = pages.count { it.isNotEmpty() }
+    val keyRows = remember(pages, keyPage, numColumns) {
+        keyboardPageRows(pages = pages, pageIndex = keyPage, columns = numColumns)
     }
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -503,29 +516,45 @@ fun KeyboardContent(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    chunkedKeys.forEach { rowKeys ->
+                    keyRows.forEach { rowCells ->
                         Row(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            rowKeys.forEach { key ->
-                                GazeButton(
-                                    onClick = { onKey(key) },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                ) {
-                                    Text(
-                                        text = key,
-                                        style = MaterialTheme.typography.headlineLarge.copy(fontSize = keyTextSize),
-                                        fontWeight = FontWeight.Bold
-                                    )
+                            rowCells.forEach { cell ->
+                                when (cell) {
+                                    is KeyboardCell.Character -> GazeButton(
+                                        onClick = { onKey(cell.value) },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                    ) {
+                                        Text(
+                                            text = cell.value,
+                                            style = MaterialTheme.typography.headlineLarge.copy(fontSize = keyTextSize),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    is KeyboardCell.PageToggle -> GazeButton(
+                                        onClick = { keyPage = (keyPage + 1) % pageCount },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                            .semantics { contentDescription = switchPageDescription }
+                                            .testTag("keyboard_page_toggle"),
+                                        backgroundColor = CategoryColor,
+                                        accessibilityLabel = switchPageDescription
+                                    ) {
+                                        Text(
+                                            text = cell.label,
+                                            style = MaterialTheme.typography.headlineLarge.copy(fontSize = keyTextSize),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    KeyboardCell.Empty -> Spacer(modifier = Modifier.weight(1f))
                                 }
-                            }
-                            if (rowKeys.size < numColumns) {
-                                repeat(numColumns - rowKeys.size) { Spacer(modifier = Modifier.weight(1f)) }
                             }
                         }
                     }

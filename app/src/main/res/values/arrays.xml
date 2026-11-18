@@ -33,6 +33,13 @@
         <item>\?</item>
     </string-array>
 
+    <!--
+        Optional second page for the head-tracking keyboard. Empty here, so every locale gets the
+        single-page grid. A locale whose alphabet doesn't fit one dwell-friendly grid (values-hi)
+        overrides it; KeyboardScreen then adds a page-toggle key. See keyboardPageRows.
+    -->
+    <string-array name="keyboard_keys_page2" tools:ignore="InconsistentArrays" />
+
     <string-array name="settings_option_menu_strings">
         <item>@string/settings_edit_saying</item>
         <item>@string/edit_categories_title</item>

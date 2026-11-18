@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Hindi (Devanagari) head-tracking keyboard, split over two pages because ~60 keys in one grid
+    would make every key too small to dwell on. KeyboardScreen appends a page-toggle key to each
+    page and pads both pages to the same row count, so keys never move or resize between pages.
+
+    Language-only qualifier (values-hi, not values-hi-rIN) on purpose: it matches hi-IN and plain hi,
+    and locale outranks orientation/size qualifiers, so this one layout wins in landscape and on
+    tablets too. Both pages are in varnamala (alphabet) order in every orientation, unlike the Latin
+    keyboards' QWERTY landscape variants: there is no single dominant Hindi physical layout to match.
+
+    Page 1 is 34 keys + toggle = 35, the same 7x5 phone grid as the German keyboard. Consonants are
+    grouped by varga, so at 5 columns each row is one articulation group (क-वर्ग, च-वर्ग, ...).
+    Page 2 is 33 keys + toggle = 34, so it also takes 7 rows at 5 columns and 4 at 10.
+
+    Backspace removes one code point, so deleting a matra or a conjunct (क्ष is three code points)
+    takes more than one press. That matches how Devanagari editing works on Android's own keyboards.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Page 1: consonants (व्यंजन) -->
+    <string-array name="keyboard_keys" tools:ignore="InconsistentArrays">
+        <item>क</item>
+        <item>ख</item>
+        <item>ग</item>
+        <item>घ</item>
+        <item>ङ</item>
+        <item>च</item>
+        <item>छ</item>
+        <item>ज</item>
+        <item>झ</item>
+        <item>ञ</item>
+        <item>ट</item>
+        <item>ठ</item>
+        <item>ड</item>
+        <item>ढ</item>
+        <item>ण</item>
+        <item>त</item>
+        <item>थ</item>
+        <item>द</item>
+        <item>ध</item>
+        <item>न</item>
+        <item>प</item>
+        <item>फ</item>
+        <item>ब</item>
+        <item>भ</item>
+        <item>म</item>
+        <item>य</item>
+        <item>र</item>
+        <item>ल</item>
+        <item>व</item>
+        <item>श</item>
+        <item>ष</item>
+        <item>स</item>
+        <item>ह</item>
+        <!-- Halant (virama): joins consonants into conjuncts, e.g. क + ् + ष = क्ष -->
+        <item>्</item>
+    </string-array>
+
+    <!-- Page 2: vowels (स्वर), vowel signs (मात्रा), other signs and punctuation -->
+    <string-array name="keyboard_keys_page2" tools:ignore="InconsistentArrays">
+        <item>अ</item>
+        <item>आ</item>
+        <item>इ</item>
+        <item>ई</item>
+        <item>उ</item>
+        <item>ऊ</item>
+        <item>ऋ</item>
+        <item>ए</item>
+        <item>ऐ</item>
+        <item>ओ</item>
+        <item>औ</item>
+        <item>ा</item>
+        <item>ि</item>
+        <item>ी</item>
+        <item>ु</item>
+        <item>ू</item>
+        <item>ृ</item>
+        <item>े</item>
+        <item>ै</item>
+        <item>ो</item>
+        <item>ौ</item>
+        <!-- Anusvara, chandrabindu, visarga -->
+        <item>ं</item>
+        <item>ँ</item>
+        <item>ः</item>
+        <!-- Nukta: ज + ़ = ज़, फ + ़ = फ़, ड + ़ = ड़ -->
+        <item>़</item>
+        <!--
+            The four conjuncts taught as part of the varnamala. Each is typeable from page 1 with
+            the halant (क + ् + ष), but that costs a gaze user three dwells and a page flip.
+        -->
+        <item>क्ष</item>
+        <item>त्र</item>
+        <item>ज्ञ</item>
+        <item>श्र</item>
+        <!-- Danda: the Hindi full stop -->
+        <item>।</item>
+        <item>,</item>
+        <item>\?</item>
+        <item>!</item>
+    </string-array>
+</resources>

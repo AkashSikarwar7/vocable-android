@@ -232,6 +232,7 @@
     <string name="keyboard_space">Space</string>
     <string name="keyboard_backspace">Backspace</string>
     <string name="keyboard_speak">Speak</string>
+    <string name="keyboard_switch_page">Switch letters</string>
     <string name="close_settings">Close Settings</string>
     <string name="on">ON</string>
     <string name="off">OFF</string>
